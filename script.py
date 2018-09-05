@@ -12,7 +12,7 @@ class Plant(object):
         self.family = fam
         self.description = desc
         self.tags = tags
-        # Tags are lists if they exist
+        # Set tags to none if empty string
         if self.tags.strip() == '':
             self.tags = None
         else:
@@ -22,12 +22,12 @@ class Plant(object):
             # Remove last comma if there is one
             if self.tags[-1] == ',':
                 self.tags = self.tags[:-1]
-            # Makes tags a clean list
+            # Make tags a list
             self.tags = self.tags.split(',')
-        # Generate url suffix.  Deal with                -Spaces-      -Dots (ssp.)-
+        # Generate per-plant page url suffix. Deal with   -Spaces-      -Dots (ssp.)-
         self.url = 'plantlist/' + self.latin_name.replace(' ', '_').replace('.', '') + '.html'
 
-# Create a dictionnary with all plants
+# Create a dictionnary with all plant-objects
 plants = {}
 with open('plants.csv', 'r') as f:
     lists = csv.reader(f)
@@ -41,7 +41,8 @@ with open('plants.csv', 'r') as f:
 families = {}
 for i in plants:
     plant = plants[i]
-    # Filter the first family word
+    # Stick to the the first family word. Filter old family names, synonyms
+    # or any non-phylogenetic classification.
     family = plant.family.split(" ")[0]
     if family not in families:
         families[family] = []
