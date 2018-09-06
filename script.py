@@ -4,6 +4,18 @@
 import csv
 from yattag import Doc
 
+# On commencera par creer toutes les familles au fur et a mesure
+# Que les spp defilent, en ajoutant ces derniers petit a petit aux
+# listes .spp des familles
+# On triera ensuite cette liste avec spp.sort(key=lambda x: x.latin_name)
+# On rangera les objects 
+
+class Family(object):
+    def __init__(self, name):
+        self.name = name
+        self.url = self.name + '.html'
+        # Will store species
+        self.spp = []
 
 class Plant(object):
     def __init__(self, fr, lat, fam, desc, tags):
@@ -37,7 +49,9 @@ with open('plants.csv', 'r') as f:
         # Create the object
         plants[objectname] = Plant( row[0], row[1], row[2], row[3], row[4] )
 
-# TODO: Families should be a class?
+
+
+
 families = {}
 for i in plants:
     plant = plants[i]
@@ -45,14 +59,12 @@ for i in plants:
     # or any non-phylogenetic classification.
     family = plant.family.split(" ")[0]
     if family not in families:
-        families[family] = []
-    families[family].append(plant.latin_name)
-
+        families[family] = Family(family)
+    families[family].spp.append(plant.latin_name)
 # Sort species in families
-for i in families:
-    families[i].sort()
-
-# Create a sorted list of all families
+for family in families:
+    families[family].spp.sort()
+# Create a sorted list of all existing families
 sortedfamilies = sorted([x for x in families])
 
 def createpage():
@@ -80,15 +92,15 @@ def createpage():
                     line('h2', 'Voici une liste des familles:') 
                     with tag('ul'):
                         for family in sortedfamilies:
-                            line('li', family)
+                            line('li', families[family].name)
                             with tag('ul'):
-                                for i in families[family]:
+                                for i in families[family].spp:
                                     line('li', i)
 
     return doc.getvalue()
 
 
-with open("kikou.html", "w") as f:
+with open("index.html", "w") as f:
     f.write(createpage())
 
 
