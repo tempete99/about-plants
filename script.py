@@ -33,6 +33,12 @@ class Family(object):
                 doc.asis('<meta charset="utf-8">') # Important
             with tag('body'):
                 line('h1', self.name)
+            with tag('ul'):
+                for sp in self.spp:
+                    with tag('ul'):
+                        with tag('a', href= sp.shorturl):
+                            text(sp.latin_name)
+            
         # Create family directory
         try:
             os.mkdir(prefix + self.name)
@@ -63,7 +69,8 @@ class Plant(object):
             # Make tags a list
             self.tags = self.tags.split(',')
         # Generate per-plant page url.                          Deal with   -Spaces-      -Dots (ssp.)-
-        self.url = self.family.split(' ')[0] + '/' + self.latin_name.replace(' ', '_').replace('.', '') + '.html'
+        self.shorturl = self.latin_name.replace(' ', '_').replace('.', '') + '.html'
+        self.url = self.family.split(' ')[0] + self.shorturl
 
     def WritePlantPage(self, prefix):
         doc, tag, text, line = Doc().ttl()
@@ -109,13 +116,14 @@ families.sort(key=lambda x: x.name)
 for f in families:
     f.SortSpp()
     
-# Create a list containing aliases of every spp
+# Create a list containing aliases of every spp sorted by Latin name
 # allspp = sorted([s for s in [f.spp for f in families]]) # Does not work
 allspp = []
 for f in families:
     for s in f.spp:
         allspp.append(s)
 allspp.sort(key=lambda x: x.latin_name)
+
 
 def WriteIndexPage(prefix):
     doc, tag, text, line = Doc().ttl()
@@ -133,16 +141,66 @@ def WriteIndexPage(prefix):
                     rendu l'air respirable.
                 """)
             with tag('a', href='families.html'):
-                text('Chercher par familles')
+                line('p', 'Chercher par familles')
             with tag('a', href='allspp.html'):
-                text('Chercher par especes')
+                line('p', 'Chercher par especes')
     # Write page to disk
     with open(prefix + 'index.html', 'w') as file:
         file.write(doc.getvalue())
 
+
+def WriteSearchByFamilyPage(prefix):
+    doc, tag, text, line = Doc().ttl()
+    doc.asis("<!DOCTYPE html>")
+    with tag('html'):
+        with tag('head'):
+            line('title', 'My Fouine')
+            doc.asis('<meta charset="utf-8">') # Important
+        with tag('body'):
+            with tag('ul'):
+                for f in families:
+                    with tag('li'):
+                        with tag('a', href=f.url):
+                            text(f.name)
+    # Write page to disk
+    with open(prefix + 'families.html', 'w') as file:
+        file.write(doc.getvalue())
+
+
+def WriteSearchBySppPage(prefix):
+    doc, tag, text, line = Doc().ttl()
+    doc.asis("<!DOCTYPE html>")
+    with tag('html'):
+        with tag('head'):
+            line('title', 'My Fouine')
+            doc.asis('<meta charset="utf-8">') # Important
+        with tag('body'):
+            line('h1', 'Sorted by latin names')
+            with tag('ul'):
+                # Sort by latin name
+                allspp.sort(key=lambda x: x.latin_name)
+                for sp in allspp:
+                    with tag('li'):
+                        with tag('a', href=sp.url):
+                            text(sp.latin_name)
+            line('h1', 'Sorted by french names')
+            with tag('ul'):
+                # Sort by french name
+                allspp.sort(key=lambda x: x.french_name)
+                for sp in allspp:
+                    with tag('li'):
+                        with tag('a', href=sp.url):
+                            text(sp.french_name)
+    # Write page to disk
+    with open(prefix + 'allspp.html', 'w') as file:
+        file.write(doc.getvalue())
+
+
+# Write all website
+WriteIndexPage(prefix)
+WriteSearchByFamilyPage(prefix)
+WriteSearchBySppPage(prefix)
 for f in families:
     f.WriteFamilyIndexPage(prefix)
     for sp in f.spp:
         sp.WritePlantPage(prefix)
-
-WriteIndexPage(prefix)
