@@ -29,7 +29,7 @@ class Family(object):
                 line('h1', self.name)
             with tag('ul'):
                 for sp in self.spp:
-                    with tag('ul'):
+                    with tag('li'):
                         with tag('a', href= sp.shorturl):
                             text(sp.latin_name)
         # Create family directory
