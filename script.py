@@ -8,12 +8,6 @@ from yattag import Doc
 # Prefix directory for the whole website
 prefix = 'website/'
 
-# DOTO:
-# - URLs/LINKS
-#    Every family has a directory where their spp pages are stored
-# - HTML
-#    Families have their own webpages with a list of spp
-# - Put all generated website in a different directory 'website/'
 
 class Family(object):
     def __init__(self, name):
@@ -22,7 +16,7 @@ class Family(object):
         # Will store species objects in a directory
         self.spp = []
     def SortSpp(self):
-        # Sorting spp inside families alphabetically
+        # Sorting spp inside family
         self.spp.sort(key=lambda x: x.latin_name)
     def WriteFamilyIndexPage(self, prefix):
         doc, tag, text, line = Doc().ttl()
@@ -38,7 +32,6 @@ class Family(object):
                     with tag('ul'):
                         with tag('a', href= sp.shorturl):
                             text(sp.latin_name)
-            
         # Create family directory
         try:
             os.mkdir(prefix + self.name)
@@ -93,6 +86,7 @@ class Plant(object):
         with open(prefix + self.url, 'w') as file:
             file.write(doc.getvalue())
 
+
 families = []
 
 with open('plants.csv', 'r') as f:
@@ -109,6 +103,7 @@ with open('plants.csv', 'r') as f:
                                                              row[2],
                                                              row[3],
                                                              row[4],))
+
 # Sorting families alphabetically
 families.sort(key=lambda x: x.name)
 
