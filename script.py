@@ -63,7 +63,7 @@ class Plant(object):
             self.tags = self.tags.split(',')
         # Generate per-plant page url.                          Deal with   -Spaces-      -Dots (ssp.)-
         self.shorturl = self.latin_name.replace(' ', '_').replace('.', '') + '.html'
-        self.url = self.family.split(' ')[0] + self.shorturl
+        self.url = self.family.split(' ')[0] + '/' + self.shorturl
 
     def WritePlantPage(self, prefix):
         doc, tag, text, line = Doc().ttl()
