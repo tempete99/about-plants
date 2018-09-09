@@ -3,7 +3,22 @@
 
 import os
 import csv
+import posixpath
+from urllib.parse import urlparse, urljoin, urlunparse
+# Dependencies:
 from yattag import Doc
+
+# Function to smartly handle relative urls. From:
+# https://mensfeld.pl/2011/09/relative-and-absolute-urls-expanding-in-python/
+def expand_url(home, url):
+    join = urljoin(home,url)
+    url2 = urlparse(join)
+    path = posixpath.normpath(url2[2])
+ 
+    return urlunparse(
+        (url2.scheme,url2.netloc,path,url2.params,url2.query,url2.fragment)
+        )
+
 
 # Prefix directory for the whole website
 prefix = 'website/'
@@ -11,8 +26,9 @@ prefix = 'website/'
 
 class Family(object):
     def __init__(self, name):
-        self.name = name
-        self.url = self.name + '/index.html'
+        self.name = name.split(" ")[0]
+        self.dir = expand_url('/', self.name + '/')
+        self.url = 'index.html'
         # Will store species objects in a directory
         self.spp = []
     def SortSpp(self):
@@ -129,12 +145,11 @@ def WriteIndexPage(prefix):
             doc.asis('<meta charset="utf-8">') # Important
         with tag('body'):
             line('h1', 'Bienvenue sur mon petit site de merde')
+            for i in [ "Ah, quel plaisir d'humer les fleurs.",
+                       "Bravo à vous, les plantes, d'avoir",
+                       "rendu l'air respirable.",]:
             with tag('p'):
-                text("""
-                    Ah, quel plaisir d'humer les fleurs.
-                    Bravo a vous, les plantes, d'avoir
-                    rendu l'air respirable.
-                """)
+                text(i)
             with tag('a', href='families.html'):
                 line('p', 'Chercher par familles')
             with tag('a', href='allspp.html'):
